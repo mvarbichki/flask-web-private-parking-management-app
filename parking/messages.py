@@ -16,8 +16,9 @@ first_last_name_differance_msg = ("The first name and the last name are not the 
                                   "only for the customer's fields.")
 invalid_address_msg = ("The address is invalid. Only letters, numbers, apostrophe, dash, dot, comma are allowed. A mix "
                        "between latin and cyrillic letters is not allowed")
-address_name_differance_msg = ("The address and customer name are not the same type. Use latin only or cyrillic only "
-                               "for the customer's fields")
+address_first_name_differance_msg = (
+    "The address and customer name are not the same type. Use latin only or cyrillic only "
+    "for the customer's fields")
 invalid_reg_number_msg = ("The vehicle registration number is invalid. Only letters, numbers and dash symbol (must not "
                           "be first or last) are allowed. A mix between latin and cyrillic letters is not allowed")
 invalid_veh_type_msg = ("The vehicle type is invalid. Only letters are allowed. A mix between latin and cyrillic "

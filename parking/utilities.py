@@ -233,3 +233,11 @@ def overdue_msg(overdue):
         return f"{overdue} lv"
     else:
         return "--"
+
+
+def incorrect_plus_place(phone_to_check):
+    return [i for i in phone_to_check[1:] if i == "+"]
+
+
+def plus_not_first(phone_to_check):
+    return phone_to_check[0] != "+"
