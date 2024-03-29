@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}
+PP Login page
+{% endblock %}
+{% block content %}
+<body class="text-center">
+   <br><br><br>
+   <h2>Insert credential</h2>
+   <div class="container">
+      <form method="POST" action="" class="form-signin" style="color:black">
+         {{ form.hidden_tag() }}
+         <br>
+         {{ form.username.label() }}
+         {{ form.username(class="form-control", placeholder="enter username") }}
+         <br>
+         {{ form.password.label() }}
+         {{ form.password(class="form-control", placeholder="enter password") }}
+         <br>
+         {{ form.button(class="btn btn-lg btn-block btn-primary") }}
+      </form>
+   </div>
+</body>
+{% endblock %}

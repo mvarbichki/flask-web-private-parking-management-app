@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}
+PP Free parking spots report page
+{% endblock %}
+{% block content %}
+<div class="container" >
+   <h1>Free parking spots report</h1>
+   <br>
+   <table class="table table-hover">
+      <thead class="thead-light">
+         <tr>
+            <th scope="col">Unoccupied parking spots</th>
+         </tr>
+      </thead>
+      <tbody>
+         {% for row in free_spots_list %}
+         <tr>
+            <td>Parking spot number: {{ row }}</td>
+         </tr>
+         {% endfor %}
+      </tbody>
+   </table>
+</div>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+<!-- import my custom functions from Python  -->
+{% set utilities = imprt( 'parking.utilities' ) %}
+{% block title %}
+PP Edit subscription page
+{% endblock %}
+{% block content %}
+<div class="container">
+   <form method="POST" class="form-register" style="color:black">
+      {{ form.hidden_tag() }}
+      <br><br><br>
+      <h1>Edit subscription</h1>
+      <br>
+   <form method="POST" id="subscription_form" action="{{ url_for('select_subscription_edit') }}">
+      {{ form.hidden_tag() }}
+      <label>Select a subscription to edit: *</label>
+      <center>
+         <i>change vehicle, parking spot, or end date for the selected subscription that does not expire in the next 24 hours</i>
+      </center>
+      <select name="selectSubsEdit" id="selectSubsEdit" class="form-control" placeholder="select a subscription (search by plate number or customer's name)" required>
+         {% for row in vehicle_sub_lst %}
+         <option value="{{ row.subscription_id }}">{{ row.subscription_id }} - Customer: {{ row.first_name }} {{ row.last_name }} , Plate number: {{ row.vehicle_registration_number }} , Parking spot: {{ row.parking_spot_number }} , Beginning: {{ utilities.convert_dt_to_str(utilities.dt_format_display, row.start_date) }} , Expiry: {{ utilities.convert_dt_to_str(utilities.dt_format_display, row.end_date) }} , Tax: {{ row.tax }} lv , Customer ID: {{ row.customer_id }} , Vehicle ID: {{ row.vehicle_id }}</option>
+         {% endfor %}
+      </select>
+      <script>
+         $(document).ready(function(){
+             $('#selectSubsEdit').editableSelect();
+         });
+      </script>
+      <br><br><br>
+      {{ form.button(class="btn btn-lg btn-block btn-primary") }}
+   </form>
+   </form>
+</div>
+{% endblock %}

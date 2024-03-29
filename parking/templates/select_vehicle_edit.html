@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}
+PP Edit vehicle page
+{% endblock %}
+{% block content %}
+<div class="container">
+   <form method="POST" class="form-register" style="color:black">
+      {{ form.hidden_tag() }}
+      <br><br><br>
+      <h1>Edit vehicle</h1>
+      <br>
+   <form method="POST" id="edit_vehicle_form" action="{{ url_for('select_vehicle_edit') }}">
+      {{ form.hidden_tag() }}
+      <label>Select a vehicle to edit: *</label>
+      <center>
+         <i>change the information for the selected vehicle</i>
+      </center>
+      <select name="selectVehicleEdit" id="selectVehicleEdit" class="form-control" placeholder="select a vehicle (search by plate number, brand, model etc)" required>
+         {% for row in vehicles_list %}
+         <option value="{{ row.vehicle_id }}">{{ row.vehicle_id }} - Plate number: {{ row.vehicle_registration_number }} , Type: {{ row.vehicle_type }} , Brand: {{ row.brand }} , Model: {{ row.model }} , Color: {{ row.color }}</option>
+         {% endfor %}
+      </select>
+      <script>
+         $(document).ready(function(){
+              $('#selectVehicleEdit').editableSelect();
+         });
+      </script>
+      <br><br><br>
+      {{ form.button(class="btn btn-lg btn-block btn-primary") }}
+   </form>
+   </form>
+</div>
+{% endblock %}

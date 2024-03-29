@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}
+PP Delete customer page
+{% endblock %}
+{% block content %}
+<div class="container">
+   <form method="POST" class="form-register" style="color:black">
+      {{ form.hidden_tag() }}
+      <br><br><br>
+      <h1>Delete customer</h1>
+      <br>
+   <form method="POST" id="customers_form" action="{{ url_for('select_delete_customer') }}">
+      {{ form.hidden_tag() }}
+      <label>Select a customer to DELETE: *</label>
+      <select name="selectCustomerDelete" id="selectCustomerDelete" class="form-control" placeholder="select a customer (search by name or phone)" required>
+         {% for row in customers_list %}
+         <option value="{{ row.customer_id }}">{{ row.customer_id }} - First name: {{ row.first_name }} , Last name: {{ row.last_name }} , Phone: {{ row.phone }} , Address: {{ row.address }}</option>
+         {% endfor %}
+      </select>
+      <script>
+         $(document).ready(function(){
+              $('#selectCustomerDelete').editableSelect();
+         });
+      </script>
+      <br><br><br>
+      {{ form.button(class="btn btn-lg btn-block btn-primary") }}
+   </form>
+   </form>
+</div>
+{% endblock %}

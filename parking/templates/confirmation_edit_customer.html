@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}
+PP Edit customer page
+{% endblock %}
+{% block content %}
+<center>
+   <style>
+      .button {
+      border: none;
+      color: white;
+      padding: 15px 32px;
+      width: 25%;
+      text-align: center;
+      text-decoration: none;
+      display: block;
+      font-size: 30px;
+      margin: 80px 2px;
+      cursor: pointer;
+      transition-duration: 0.4s;
+      }
+      .button:hover {
+      background-color: #e7e7e7;
+      }
+      .button1 {background-color: #ff0e0e;}
+      .button2 {background-color: #4CAF50;}
+   </style>
+   <br><br><br>
+   <h1>Please check the details and confirm</h1>
+   <br><br><br>
+   <h2>Customer new details:</h2>
+   <br>
+   <h4>Customer first name: {{ updated_first_name }}</h4>
+   <h4>Customer last name {{ updated_last_name }}</h4>
+   <h4>Phone number: {{ updated_phone }}</h4>
+   <h4>Address: {{ updated_address }}</h4>
+   <button onclick="window.location.href = 'customers'" class="button button1">NO</button>
+   <button onclick="window.location.href = 'edit_customer_yes_but_action'" class="button button2">YES</button>
+</center>
+{% endblock %}

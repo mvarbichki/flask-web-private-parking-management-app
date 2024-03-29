@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}
+PP Reports page
+{% endblock %}
+{% block content %}
+
+<center>
+   <style>
+      .button {
+      border: none;
+      color: white;
+      padding: 15px 32px;
+      width: 25%;
+      text-align: center;
+      text-decoration: none;
+      display: block;
+      font-size: 30px;
+      margin: 80px 2px;
+      cursor: pointer;
+      transition-duration: 0.4s;
+      }
+      .button:hover {
+      background-color: #e7e7e7;
+      }
+      .button1 {background-color: #008CBA;}
+   </style>
+   <br>
+   <h1>Reports options</h1>
+   <br>
+   <button onclick="window.location.href = 'select_customer_report'" class="button button1">Full customer report</button>
+   <button onclick="window.location.href = 'free_parking_spots_report'" class="button button1">Free parking spaces</button>
+</center>
+{% endblock %}

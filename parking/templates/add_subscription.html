@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}
+PP Add subscription page
+{% endblock %}
+{% block content %}
+<div class="container">
+   <form method="POST" class="form-register" style="color:black">
+      {{ form.hidden_tag() }}
+      <br>
+      <h1>Add subscription</h1>
+      <br>
+      <label>Select a vehicle to add a subscription to: *</label>
+      <select name="selectVehicleSubs" id="selectVehicleSubs" class="form-control" placeholder="select a vehicle (search by vehicle registration number, owner's name or phone)" required>
+         {% for row in vehicle_customer_lst %}
+         <option value="{{ row.vehicle_id }}">{{ row.vehicle_id }} - Vehicle registration number: {{ row.vehicle_registration_number }} , Owner: {{ row.first_name }} {{ row.last_name }} , Phone: {{ row.phone }}</option>
+         {% endfor %}
+      </select>
+      <script>
+         $(document).ready(function(){
+             $('#selectVehicleSubs').editableSelect();
+         });
+      </script>
+      <br>
+   <form method="POST" id="add_subscription_form" action="{{ url_for('add_subscription') }}">
+      {{ form.hidden_tag() }}
+      <label>Select a parking spot for the vehicle: *</label>
+      <select name="selectSpotSubs" id="selectSpotSubs" class="form-control" placeholder="select a parking spot" required>
+         {% for row in free_spots_list %}
+         <option value="{{ row }}" SELECTED>{{ row }}</option>
+         "
+         {% endfor %}
+      </select>
+      <br>
+      <center>
+         <i>start date is taken automatically from the system, refresh the page if the time mismatch</i>
+      </center>
+      <label>Starting date and time:</label>
+      <h6>{{ current_dt }}</h6>
+      <br><br>
+      {{ form.end_date.label() }}
+      {{ form.end_date(class="form-control") }}
+      <br>
+      {{ form.button(class="btn btn-lg btn-block btn-primary") }}
+   </form>
+   </form>
+</div>
+{% endblock %}

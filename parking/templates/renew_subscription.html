@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}
+PP Renew subscription page
+{% endblock %}
+{% block content %}
+<div class="container">
+   <form method="POST" class="form-register" style="color:black">
+      {{ form.hidden_tag() }}
+      <br>
+      <h1>Renew subscription</h1>
+      <br>
+      <label>Vehicle registration number: {{ reg_number }}  /  Owner: {{ first_name }} {{ last_name }}</label>
+      <br><br>
+   <form method="POST" id="add_subscription_form" action="{{ url_for('add_subscription') }}">
+      {{ form.hidden_tag() }}
+      <label>Select a parking spot for the vehicle: *</label>
+      <select name="selectSpotSubs" id="selectSpotSubs" class="form-control" placeholder="select a parking spot">
+         <option value="">{{ parking_spot }}</option>
+         {% for row in free_spots_list %}
+         <option value="{{ row }}" >{{ row }}</option>
+         "
+         {% endfor %}
+      </select>
+      <br>
+      <label>Subscription overdue: </label> <label style="color:blue;">{{ overdue_check }}</label>
+      <br>
+      <center>
+         <i>{{ start_dt_info }}</i>
+      </center>
+      <label>Starting date and time:</label>
+      <h6>{{ start_dt }}</h6>
+      <br><br>
+      {{ form.end_date.label() }}
+      {{ form.end_date(class="form-control") }}
+      <br>
+      {{ form.button(class="btn btn-lg btn-block btn-primary") }}
+   </form>
+   </form>
+</div>
+{% endblock %}

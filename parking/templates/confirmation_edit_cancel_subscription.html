@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}
+PP Cancel subscription page
+{% endblock %}
+{% block content %}
+<center>
+   <style>
+      .button {
+      border: none;
+      color: white;
+      padding: 15px 32px;
+      width: 25%;
+      text-align: center;
+      text-decoration: none;
+      display: block;
+      font-size: 30px;
+      margin: 80px 2px;
+      cursor: pointer;
+      transition-duration: 0.4s;
+      }
+      .button:hover {
+      background-color: #e7e7e7;
+      }
+      .button1 {background-color: #4CAF50;}
+      .button2 {background-color: #ff0e0e;}
+   </style>
+   <br><br><br>
+   <h1>Are you sure you want to proceed?</h1>
+   <br><br><br>
+   <h2>Cancel active subscription:</h2>
+   <br>
+   <h4>Vehicle registration number: {{ reg_number }}</h4>
+   <h4>Parking spot: {{ parking_spot }}</h4>
+   <h4>Owner: {{ first_name }} {{ last_name }}</h4>
+   <h1>{{ full_sub_fee }}</h1>
+   <h1>{{ fee_refund }}</h1>
+   <br><br><br>
+   <button onclick="window.location.href = 'subscriptions'" class="button button1">NO</button>
+   <button onclick="window.location.href = 'cancel_edit_yes_but_action'" class="button button2">YES</button>
+</center>
+{% endblock %}

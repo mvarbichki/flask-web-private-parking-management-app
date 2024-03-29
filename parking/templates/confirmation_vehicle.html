@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}
+PP Confirm new vehicle
+{% endblock %}
+{% block content %}
+<center>
+   <style>
+      .button {
+      border: none;
+      color: white;
+      padding: 15px 32px;
+      width: 25%;
+      text-align: center;
+      text-decoration: none;
+      display: block;
+      font-size: 30px;
+      margin: 80px 2px;
+      cursor: pointer;
+      transition-duration: 0.4s;
+      }
+      .button:hover {
+      background-color: #e7e7e7;
+      }
+      .button1 {background-color: #ff0e0e;}
+      .button2 {background-color: #4CAF50;}
+   </style>
+   <br><br><br>
+   <h1>Please check the details and confirm</h1>
+   <br><br><br>
+   <h2>Add new vehicle:</h2>
+   <br>
+   <h4>Registration number: {{ reg_number }}</h4>
+   <h4>Type: {{ vehicle_type }}</h4>
+   <h4>Brand: {{ brand }}</h4>
+   <h4>Model: {{ model }}</h4>
+   <h4>Color: {{ color }}</h4>
+   <h4>Owner: {{ customer }}</h4>
+   <br>
+   <button onclick="window.location.href = 'vehicles'" class="button button1">NO</button>
+   <button onclick="window.location.href = 'add_vehicle_yes_but_action'" class="button button2">YES</button>
+</center>
+{% endblock %}

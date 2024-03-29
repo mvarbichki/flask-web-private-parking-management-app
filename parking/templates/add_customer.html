@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}
+PP Add customer page
+{% endblock %}
+{% block content %}
+<div class="container">
+   <form method="POST" class="form-register" style="color:black">
+      {{ form.hidden_tag() }}
+      <br>
+      <h1>Customer registration</h1>
+      <br>
+      <center>
+         <i>Latin and Cyrillic alphabets are available. Keep in mind once the record is saved the alphabet can NOT be changed</i>
+      </center>
+      {{ form.first_name.label() }}
+      {{ form.first_name(class="form-control", placeholder="add first name") }}
+      <br>
+      {{ form.last_name.label() }}
+      {{ form.last_name(class="form-control", placeholder="add last name") }}
+      <br>
+      {{ form.phone.label() }}
+      {{ form.phone(class="form-control", placeholder="add phone number (must begin with country code ex. +359)") }}
+      <br>
+      {{ form.address.label() }}
+      {{ form.address(class="form-control", placeholder="add address (country,town,district etc)") }}
+      <br>
+      <center>
+         <i>the date of the event is taken automatically from the system</i>
+      </center>
+      {{ form.button(class="btn btn-lg btn-block btn-primary") }}
+   </form>
+</div>
+{% endblock %}

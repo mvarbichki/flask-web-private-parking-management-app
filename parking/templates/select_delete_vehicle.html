@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}
+PP Delete vehicle page
+{% endblock %}
+{% block content %}
+<div class="container">
+   <form method="POST" class="form-register" style="color:black">
+      {{ form.hidden_tag() }}
+      <br><br><br>
+      <h1>Delete customer</h1>
+      <br>
+   <form method="POST" id="vehicle_form" action="{{ url_for('select_delete_vehicle') }}">
+      {{ form.hidden_tag() }}
+      <label>Select a customer to DELETE: *</label>
+      <select name="selectVehicleDelete" id="selectVehicleDelete" class="form-control" placeholder="select a vehicle (search by plate number, brand, model etc)" required>
+         {% for row in vehicles_list %}
+         <option value="{{ row.vehicle_id }}">{{ row.vehicle_id }} - Plate number: {{ row.vehicle_registration_number }} , Type: {{ row.vehicle_type }} , Brand: {{ row.brand }} , Model: {{ row.model }} , Color: {{ row.color }}</option>
+         {% endfor %}
+      </select>
+      <script>
+         $(document).ready(function(){
+              $('#selectVehicleDelete').editableSelect();
+         });
+      </script>
+      <br><br><br>
+      {{ form.button(class="btn btn-lg btn-block btn-primary") }}
+   </form>
+   </form>
+</div>
+{% endblock %}

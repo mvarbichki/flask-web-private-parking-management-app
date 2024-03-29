@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}
+PP Edit vehicle page
+{% endblock %}
+{% block content %}
+<div class="container">
+   <form method="POST" class="form-register" style="color:black">
+      {{ form.hidden_tag() }}
+      <br>
+      <h1>Edit vehicle</h1>
+      <br>
+      <center>
+         <i>fill in only the fields you want to change, leave fields you do not want to change</i>
+      </center>
+      <br>
+      {{ form.vehicle_registration_number.label() }}
+      {{ form.vehicle_registration_number(class="form-control", placeholder="add new registration number") }}
+      <br>
+      {{ form.vehicle_type.label() }}
+      {{ form.vehicle_type(class="form-control", placeholder="add new type") }}
+      <br>
+      {{ form.brand.label() }}
+      {{ form.brand(class="form-control", placeholder="add new brand") }}
+      <br>
+      {{ form.model.label() }}
+      {{ form.model(class="form-control", placeholder="add new model") }}
+      <br>
+      {{ form.color.label() }}
+      {{ form.color(class="form-control", placeholder="add new color") }}
+      <br>
+      <center>
+         <i>the date of the event is taken automatically from the system</i>
+      </center>
+      {{ form.button(class="btn btn-lg btn-block btn-primary") }}
+   </form>
+</div>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}
+PP Edit subscription page
+{% endblock %}
+{% block content %}
+<div class="container">
+   <form method="POST" class="form-register" style="color:black">
+      {{ form.hidden_tag() }}
+      <br>
+      <h1>Edit subscription</h1>
+      <br>
+      <label>Select a new vehicle to add a subscription to:</label>
+      <center>
+         <i>current subscription is for vehicle: {{ vehicle_plate_num }} owner: {{ first_name }} {{ last_name }}, leave the select blank for the same vehicle or select other vehicle of the customer</i>
+      </center>
+      <select name="selectVehicleSubs" id="selectVehicleSubs" class="form-control" placeholder="select another customer vehicle (search by registration number)">
+         {% for row in vehicle_customer_lst %}
+         <option value="{{ row.vehicle_id }}">{{ row.vehicle_id }} - Plate number: {{ row.vehicle_registration_number }} , Owner: {{ row.first_name }} {{ row.last_name }} , Phone: {{ row.phone }}</option>
+         {% endfor %}
+      </select>
+      <script>
+         $(document).ready(function(){
+             $('#selectVehicleSubs').editableSelect();
+         });
+      </script>
+      <br>
+   <form method="POST" id="add_subscription_form" action="{{ url_for('add_subscription') }}">
+      {{ form.hidden_tag() }}
+      <label>Select a new parking spot for the vehicle: *</label>
+      <select name="selectSpotSubs" id="selectSpotSubs" class="form-control" placeholder="select a parking spot">
+         <option value="">{{ parking_spot }}</option>
+         {% for row in free_spots_list %}
+         <option value="{{ row }}" >{{ row }}</option>
+         "
+         {% endfor %}
+      </select>
+      <br>
+      <center>
+         <i>start date is the date of the subscription registration</i>
+      </center>
+      <label>Starting date and time:</label>
+      <h6>{{ start_date }} {{ start_time }}</h6>
+      <br><br>
+      <center>
+         <i>end date cannot be older than today's date</i>
+      </center>
+      {{ form.end_date.label() }}
+      {{ form.end_date(class="form-control") }}
+      <br>
+      {{ form.button(class="btn btn-lg btn-block btn-primary") }}
+   </form>
+   </form>
+</div>
+{% endblock %}

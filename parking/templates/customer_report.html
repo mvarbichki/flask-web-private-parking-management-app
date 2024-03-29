@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+<!-- import my custom functions from Python  -->
+{% set utilities = imprt( 'parking.utilities' ) %}
+{% block title %}
+PP Customer report page
+{% endblock %}
+{% block content %}
+<div class="container" >
+   <h1>Customer report</h1>
+   <br>
+   <b> Customer: {{ first_name }} {{ last_name }} </b>
+   <br>
+   <b>Phone number: {{ phone }}</b>
+   <br>
+   <b>Address: {{ address }}</b>
+   <br>
+   <b>Registered on: {{ date_of_registration }} </b>
+   <br>
+   <b>Edited on: {{ date_of_editing }} </b>
+   <br><br>
+   <table class="table table-hover">
+      <thead class="thead-light">
+         <tr>
+            <b>Customers vehicles</b>
+            <th scope="col">Reg number</th>
+            <th scope="col">Type</th>
+            <th scope="col">Brand</th>
+            <th scope="col">Model</th>
+            <th scope="col">Color</th>
+            <th scope="col">Registered on</th>
+            <th scope="col">Edited on</th>
+            <th scope="col">Active subscription</th>
+         </tr>
+      </thead>
+      <tbody>
+         {% for row in vehicle_customer_lst %}
+         <tr>
+            <td>{{ row.vehicle_registration_number }}</td>
+            <td>{{ row.vehicle_type }}</td>
+            <td>{{ row.brand }}</td>
+            <td>{{ row.model }}</td>
+            <td>{{ row.color }}</td>
+            <td>{{ utilities.convert_dt_to_str(utilities.dt_format_display, row.registration_date) }}</td>
+            <td>{{ utilities.skipped_dt(row.date_of_editing) }}</td>
+            <td>{{ utilities.sub_status_msg(row.is_subscribed) }}</td>
+         </tr>
+         {% endfor %}
+      </tbody>
+   </table>
+   <table class="table table-hover">
+      <thead class="thead-light">
+         <tr>
+            <b>Customers subscriptions</b>
+            <th scope="col">Sub status</th>
+            <th scope="col">Reg number</th>
+            <th scope="col">Parking spot</th>
+            <th scope="col">Sub tax</th>
+            <th scope="col">From</th>
+            <th scope="col">To</th>
+            <th scope="col">Overdue fee</th>
+            <th scope="col">Edited on</th>
+         </tr>
+      </thead>
+      <tbody>
+         {% for row in subscription_customer_lst %}
+         <tr>
+            <td>{{ row.subscription_status }}</td>
+            <td>{{ row.vehicle_registration_number }}</td>
+            <td>{{ row.parking_spot_number }}</td>
+            <td>{{ row.tax }} lv</td>
+            <td>{{ utilities.convert_dt_to_str(utilities.dt_format_display, row.start_date) }} </td>
+            <td>{{ utilities.convert_dt_to_str(utilities.dt_format_display, row.end_date) }} </td>
+            <td>{{ utilities.overdue_msg(row.overdue_fee) }} </td>
+            <td>{{ utilities.skipped_dt(row.date_of_editing) }}</td>
+         </tr>
+         {% endfor %}
+      </tbody>
+   </table>
+</div>
+{% endblock %}

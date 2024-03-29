@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+<!-- import my custom functions from Python  -->
+{% set utilities = imprt( 'parking.utilities' ) %}
+{% block title %}
+PP Expire subscriptions
+{% endblock %}
+{% block content %}
+<div class="container">
+   <h1>Subscriptions</h1>
+   <br>
+   <table class="table table-hover">
+      <thead class="thead-light">
+         <tr>
+            <!-- Columns  -->
+            <b> Expired and expiring subscriptions in the next 24 hours (results automatically refresh every 10 min or manually refresh the page)</b>
+            <th scope="col">Expires on</th>
+            <th scope="col">Parking spot number</th>
+            <th scope="col">Vehicle reg number</th>
+            <th scope="col">Customer</th>
+            <th scope="col">Phone</th>
+            <th scope="col">Subscription options</th>
+         </tr>
+      </thead>
+      <tbody>
+         <!-- iterates through list -->
+         {% for sub in expiry_sub_lst %}
+         <tr>
+            <form method="POST" id="renew_tab" action="{{ url_for('expire_subscriptions') }}">
+               <td>{{ utilities.convert_dt_to_str(utilities.dt_format_display, sub.end_date) }}</td>
+               <td>{{ sub.parking_spot_number }}</td>
+               <td>{{ sub.vehicle_registration_number }}</td>
+               <td>{{ sub.first_name }} {{ sub.last_name }}</td>
+               <td>{{ sub.phone }}</td>
+               <td>
+                  <button class="btn btn-outline btn-info" name="sub_table_info" value="{{ sub.end_date }} , {{ sub.parking_spot_number }} , {{ sub.vehicle_registration_number }} , {{ sub.first_name }} , {{ sub.last_name }} , {{ sub.vehicle_id }} , {{ sub.subscription_id }}">Select</button>
+               </td>
+            </form>
+         </tr>
+         {% endfor %}
+      </tbody>
+   </table>
+</div>
+<!-- Refresh the page every 10 minutes in order to show subscriptions that expiring soon  -->
+<script>
+   window.setTimeout(function(){window.location.href=window.location.href},600000);
+</script>
+{% endblock %}

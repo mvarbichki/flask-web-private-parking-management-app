@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}
+PP Subscription option page
+{% endblock %}
+{% block content %}
+<center>
+   <style>
+      .button {
+      border: none;
+      color: white;
+      padding: 15px 32px;
+      width: 25%;
+      text-align: center;
+      text-decoration: none;
+      display: block;
+      font-size: 30px;
+      margin: 80px 2px;
+      cursor: pointer;
+      transition-duration: 0.4s;
+      }
+      .button:hover {
+      background-color: #e7e7e7;
+      }
+      .button1 {background-color: #4CAF50;}
+      .button2 {background-color: #ff0e0e;}
+   </style>
+   <br>
+   <h1>Subscription options</h1>
+   <br>
+   <button onclick="window.location.href = 'renew_subscription'" class="button button1">Renew subscription</button>
+   <button onclick="window.location.href = 'confirmation_exp_cancel_subscription'" class="button button2">Cancel subscription</button>
+</center>
+{% endblock %}
