@@ -118,20 +118,22 @@ class VehiclesRegisterForm(FlaskForm):
         blank_space_in_reg_num = blank_space_check(reg_number_to_check)
         invalid_reg_num_cyrillic = validate_check_from_lst(reg_number_to_check.data, srt_reg_num_cyrillic_compare_lst)
         invalid_reg_num_latin = validate_check_from_lst(reg_number_to_check.data, str_reg_num_latin_compare_lst)
-        first_or_last_element_is_dash = first_last_ele_check(reg_number_to_check, "-")
+        reg_first_or_last_element_is_dash = first_last_ele_check(reg_number_to_check, "-")
         if reg_number_is_empty_str:
             pass
         elif blank_space_in_reg_num:
             raise ValidationError(blank_space_msg("the registration number"))
         # checks for allowed characters and symbols
-        elif (invalid_reg_num_latin and invalid_reg_num_cyrillic) or first_or_last_element_is_dash:
+        elif (invalid_reg_num_latin and invalid_reg_num_cyrillic) or reg_first_or_last_element_is_dash:
             raise ValidationError(invalid_reg_number_msg)
 
     def validate_vehicle_type(self, type_to_check):
-        if blank_space_check(type_to_check):
+        blank_space_in_type = blank_space_check(type_to_check)
+        invalid_type_cyrillic = validate_check_from_lst(type_to_check.data, cyrillic_letters)
+        invalid_type_latin = validate_check_from_lst(type_to_check.data, latin_letters)
+        if blank_space_in_type:
             raise ValidationError(blank_space_msg("the vehicle type"))
-        elif (validate_check_from_lst(type_to_check.data, latin_letters)) and \
-                (validate_check_from_lst(type_to_check.data, cyrillic_letters)):
+        elif invalid_type_latin and invalid_type_cyrillic:
             raise ValidationError(invalid_veh_type_msg)
 
     def validate_brand(self, brand_to_check):
@@ -163,16 +165,17 @@ class VehiclesRegisterForm(FlaskForm):
     # TODO continue with improving teh code from validate_color
 
     def validate_color(self, color_to_check):
-        if blank_space_check(color_to_check):
+        blank_space_in_color = blank_space_check(color_to_check)
+        invalid_color_latin = validate_check_from_lst(color_to_check.data, str_color_latin_dash_compare_lst)
+        invalid_color_cyrillic = validate_check_from_lst(color_to_check.data, str_color_cyrillic_dash_compare_lst)
+        color_first_or_last_element_is_dash = first_last_ele_check(color_to_check, "-")
+        invalid_type_latin = validate_check_from_lst(self.vehicle_type.data, str_reg_num_latin_compare_lst)
+        invalid_type_cyrillic = validate_check_from_lst(self.vehicle_type.data, srt_reg_num_cyrillic_compare_lst)
+        if blank_space_in_color:
             raise ValidationError(blank_space_msg("the vehicle color"))
-        elif (validate_check_from_lst(color_to_check.data, str_color_latin_dash_compare_lst)) and \
-                (validate_check_from_lst(color_to_check.data, str_color_cyrillic_dash_compare_lst)) or \
-                (first_last_ele_check(color_to_check, "-")):
+        elif (invalid_color_latin and invalid_color_cyrillic) or color_first_or_last_element_is_dash:
             raise ValidationError(invalid_color_msg)
-        elif (validate_check_from_lst(self.vehicle_type.data, str_reg_num_latin_compare_lst) and
-              validate_check_from_lst(color_to_check.data, str_color_cyrillic_dash_compare_lst)) or \
-                (validate_check_from_lst(self.vehicle_type.data, srt_reg_num_cyrillic_compare_lst) and
-                 validate_check_from_lst(color_to_check.data, str_color_latin_dash_compare_lst)):
+        elif (invalid_type_latin and invalid_color_cyrillic) or (invalid_type_cyrillic and invalid_color_latin):
             raise ValidationError(color_type_differance_msg)
 
     vehicle_registration_number = StringField(label="Vehicle registration number: *",
@@ -196,10 +199,12 @@ class VehiclesRegisterForm(FlaskForm):
 class EditVehicleFrom(VehiclesRegisterForm):
 
     def validate_vehicle_type(self, type_to_check):
-        if blank_space_check(type_to_check):
+        blank_space_in_type = blank_space_check(type_to_check)
+        invalid_type_cyrillic = validate_check_from_lst(type_to_check.data, cyrillic_letters)
+        invalid_type_latin = validate_check_from_lst(type_to_check.data, latin_letters)
+        if blank_space_in_type:
             raise ValidationError(blank_space_msg("the vehicle type"))
-        elif (validate_check_from_lst(type_to_check.data, latin_letters)) and \
-                (validate_check_from_lst(type_to_check.data, cyrillic_letters)):
+        elif invalid_type_latin and invalid_type_cyrillic:
             raise ValidationError(invalid_type_msg)
 
 
@@ -213,12 +218,12 @@ class AddSubscriptionForm(FlaskForm):
         # differance in days between start dt and end dt
         self.days = calculate_days_diff(dt_now_null_sec, end_date_to_check.data)[0]
         # dt check for min and max subscription period
-        dt_check = validate_datetime_differance(dt_now_null_sec,
-                                                end_date_to_check.data,
-                                                self.days
-                                                )
-        if dt_check:
-            raise ValidationError(dt_check)
+        sub_dt_is_invalid = validate_datetime_differance(dt_now_null_sec,
+                                                         end_date_to_check.data,
+                                                         self.days
+                                                         )
+        if sub_dt_is_invalid:
+            raise ValidationError(sub_dt_is_invalid)
 
     # returns the days differance
     def get_days(self):
