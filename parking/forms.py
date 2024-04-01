@@ -162,8 +162,6 @@ class VehiclesRegisterForm(FlaskForm):
         elif (invalid_type_latin and invalid_model_cyrillic) or (invalid_type_cyrillic and invalid_model_latin):
             raise ValidationError(model_type_differance_msg)
 
-    # TODO continue with improving teh code from validate_color
-
     def validate_color(self, color_to_check):
         blank_space_in_color = blank_space_check(color_to_check)
         invalid_color_latin = validate_check_from_lst(color_to_check.data, str_color_latin_dash_compare_lst)

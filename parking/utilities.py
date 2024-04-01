@@ -2,6 +2,7 @@ from flask import flash
 import string
 import cyrtranslit
 import datetime
+from parking.messages import min_sub_period_msg, max_sub_period_msg
 
 # datetime formats
 dt_format_db = "%Y-%m-%dT%H:%M"
@@ -52,35 +53,40 @@ def display_error_messages(form_var):
 
 
 # check for blank spaces
-def blank_space_check(var):
-    white_space_lst = [i for i in var.data if i == " "]
-    return white_space_lst
+def blank_space_check(form_var: str):
+    is_white_space = [i for i in form_var.data if i == " "]
+    return is_white_space
 
 
 # compare str to list for allowed symbols
-def validate_check_from_lst(var_to_check, lst_to_compare):
-    res_lst = [i for i in var_to_check if i not in lst_to_compare]
-    return res_lst
+def validate_check_from_lst(var_to_check: str, lst_to_compare: list):
+    is_forbidden_symbol = [i for i in var_to_check if i not in lst_to_compare]
+    return is_forbidden_symbol
 
 
-def first_last_ele_check(var_to_check, ele):
+def first_last_ele_check(var_to_check: str, ele: str):
+    # gets the first and the last element of the var and adds them to a list
     first_last_lst = [var_to_check.data[i] for i in (0, -1)]
-    res = [i for i in first_last_lst if i == ele]
-    return res
+    is_ele_first_last_symbol = [i for i in first_last_lst if i == ele]
+    return is_ele_first_last_symbol
 
 
 # creates a list of not occupied parking spots. It creates 60 parking spots and reverse the order
 def free_parking_spots(db_lst: list):
-    str_lst = [str(elem) for elem in db_lst]
-    res_lst = []
-    for i in range(1, 61):
-        if str(i) not in str_lst:
-            res_lst.append(str(i))
-    return [x for x in res_lst[::-1]]
+    # creates 60 parking spots. Parking available spots can be reduced or increased by the second argument
+    available_parking_spots = range(1, 61)
+    # gets all the occupied parking spots from the DB and adds them to a list
+    occupied_spots = [str(elem) for elem in db_lst]
+    unoccupied_spots = []
+    for spot in available_parking_spots:
+        # if spot is not in occupied spots adds it to the unoccupied spot list
+        if str(spot) not in occupied_spots:
+            unoccupied_spots.append(str(spot))
+    return unoccupied_spots
 
 
 # calculate time differance between two dates
-def calculate_days_diff(start_date, end_date):
+def calculate_days_diff(start_date: datetime, end_date: datetime):
     delta = None
     is_negative = False
     if end_date != start_date:
@@ -104,27 +110,27 @@ def convert_dt_to_str(dt_format, dt=None):
         return dt.strftime(dt_format)
 
 
-def manual_str_char_swap_dt(str_dt):
-    c_lst = list(str_dt)
+def manual_str_char_swap_dt(str_dt: str):
+    characters_list = list(str_dt)
     # swap list characters
-    c_lst[0], c_lst[1], c_lst[2], c_lst[3], c_lst[4], c_lst[5], c_lst[6], c_lst[7], c_lst[8], c_lst[9] = \
-        c_lst[8], c_lst[9], "/", c_lst[5], c_lst[6], "/", c_lst[0], c_lst[1], c_lst[2], c_lst[3]
+    characters_list[0], characters_list[1], characters_list[2], characters_list[3], characters_list[4], characters_list[5], characters_list[6], characters_list[7], characters_list[8], characters_list[9] = \
+        characters_list[8], characters_list[9], "/", characters_list[5], characters_list[6], "/", characters_list[0], characters_list[1], characters_list[2], characters_list[3]
     # convert list back to string
-    res = "".join(c_lst)
-    return res
+    swapped_str = "".join(characters_list)
+    return swapped_str
 
 
-def convert_str_to_dt(str_dt, dt_format):
+def convert_str_to_dt(str_dt: str, dt_format: str):
     return datetime.datetime.strptime(str_dt, dt_format)
 
 
-def validate_datetime_differance(start_dt, end_dt, days):
+def validate_datetime_differance(start_dt: datetime, end_dt: datetime, days: datetime):
     # check if start date is equal or bigger then end date or time differance is less the 1 day
     if (start_dt >= end_dt) or (days < 1):
-        return "Minimum subscription period is 24 hours"
+        return min_sub_period_msg
     # check if subscription period is more than one year
     elif days > 366:
-        return "Maximum subscription period is one year"
+        return max_sub_period_msg
 
 
 def new_entry_validation(current_record, new_entry, is_address: bool = None):
@@ -146,9 +152,11 @@ def new_entry_validation(current_record, new_entry, is_address: bool = None):
 
 
 def str_split_pick(str_to_split: str, index: int, return_int: bool = None):
+    # empty str
     if str_to_split == "":
         return ""
     else:
+        # return_int is used for ids
         if return_int:
             return int(str_to_split.split()[index])
         else:

@@ -37,6 +37,8 @@ color_type_differance_msg = ("The vehicle color and vehicle type are not the sam
                              "only for the vehicle's fields")
 invalid_type_msg = ("The vehicle type is invalid. Only letters are allowed. A mix between latin and cyrillic letters "
                     "is not allowed")
+min_sub_period_msg = "Minimum subscription period is 24 hours"
+max_sub_period_msg = "Maximum subscription period is one year"
 
 
 def record_exist_msg(record):
