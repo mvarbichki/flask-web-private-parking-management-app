@@ -2,7 +2,7 @@ from flask import flash
 import string
 import cyrtranslit
 import datetime
-from parking.messages import min_sub_period_msg, max_sub_period_msg
+from parking.messages import min_sub_period_msg, max_sub_period_msg, start_date_system_msg, start_date_previous_sub_msg
 
 # datetime formats
 dt_format_db = "%Y-%m-%dT%H:%M"
@@ -113,8 +113,10 @@ def convert_dt_to_str(dt_format, dt=None):
 def manual_str_char_swap_dt(str_dt: str):
     characters_list = list(str_dt)
     # swap list characters
-    characters_list[0], characters_list[1], characters_list[2], characters_list[3], characters_list[4], characters_list[5], characters_list[6], characters_list[7], characters_list[8], characters_list[9] = \
-        characters_list[8], characters_list[9], "/", characters_list[5], characters_list[6], "/", characters_list[0], characters_list[1], characters_list[2], characters_list[3]
+    characters_list[0], characters_list[1], characters_list[2], characters_list[3], characters_list[4], characters_list[
+        5], characters_list[6], characters_list[7], characters_list[8], characters_list[9] = \
+        characters_list[8], characters_list[9], "/", characters_list[5], characters_list[6], "/", characters_list[0], \
+        characters_list[1], characters_list[2], characters_list[3]
     # convert list back to string
     swapped_str = "".join(characters_list)
     return swapped_str
@@ -179,12 +181,14 @@ def recalculate_sub_tax(old_tax: float, dt_change: int, is_negative: bool):
     return "{:.2f}".format(new_sub_tax), sub_action, "{:.2f}".format(sub_tax_diff)
 
 
-# checks for existing registration number or phone
-def db_uniqueness_check(model, form_data: str, option: str):
-    if option == "phone":
-        return model.query.filter_by(phone=form_data).first()
-    elif option == "reg_number":
-        return model.query.filter_by(vehicle_registration_number=form_data).first()
+# checks for existing registration number
+def db_reg_uniqueness_check(model, form_data: str):
+    return model.query.filter_by(vehicle_registration_number=form_data).first()
+
+
+# checks for existing phone
+def db_phone_uniqueness_check(model, form_data: str):
+    return model.query.filter_by(phone=form_data).first()
 
 
 # remove seconds and colon
@@ -192,40 +196,55 @@ def format_time(time):
     return ''.join(time.split())[:-3]
 
 
-def formation_dt(date: str, time: str, db_format: str):
+def compose_dt(date: str, time: str, db_format: str):
     date = manual_str_char_swap_dt(date)
     time = format_time(time)
     gather_str_dt = date + " " + time
     return convert_str_to_dt(gather_str_dt, db_format)
 
 
-def sub_expiry_check(end_dt, now_dt):
+def sub_expiry_check(end_dt: datetime, now_dt: datetime):
     # checks for subscription overdue expiration. If so calculate extra fee. Also return different start dt,
     # and different start dt info
     if end_dt < now_dt:
         # if differance is less than 24h the day differance will become 1. Otherwise, will calculate the fee
-        if calculate_days_diff(end_dt, now_dt)[0] == 0:
+        time_differance_under_a_day = calculate_days_diff(end_dt, now_dt)[0] == 0
+        if time_differance_under_a_day:
             overdue_period = 1
         else:
             overdue_period = calculate_days_diff(end_dt, now_dt)[0]
-        return ("{:.2f}".format(overdue_period * 5), "YES", convert_dt_to_str(dt_format_display),
-                "start date is taken automatically from the system", convert_dt_to_str(dt_format_db),
-                datetime.datetime.now())
+        overdue_sum = "{:.2f}".format(overdue_period * 5)
+        renew_start_dt = convert_dt_to_str(dt_format_display)
+        renew_start_dt_db = convert_dt_to_str(dt_format_db)
+        return (overdue_sum,
+                "YES",
+                renew_start_dt,
+                start_date_system_msg,
+                renew_start_dt_db,
+                datetime.datetime.now()
+                )
     else:
-        return ("--", "NO", convert_dt_to_str(dt_format_display, dt=end_dt),
-                "start date is the end date of the previous subscription", convert_dt_to_str(dt_format_db, dt=end_dt),
-                end_dt)
+        renew_start_dt = convert_dt_to_str(dt_format_display, dt=end_dt)
+        renew_start_dt_db = convert_dt_to_str(dt_format_db, dt=end_dt)
+        return ("--",
+                "NO",
+                renew_start_dt,
+                start_date_previous_sub_msg,
+                renew_start_dt_db,
+                end_dt
+                )
 
 
-# instead true/false return yes/no in the customer report for the active subscription column
-def sub_status_msg(status):
+#  converts true/false into yes/no in the customer report for the active subscription column.
+#  It's called in the template
+def sub_status_msg(status: bool):
     if status is True:
         return "YES"
     else:
         return "NO"
 
 
-# used for customer report table. Returns -- instead empty record for skipped dt or return formatted dt
+# used for customer report table. Returns -- instead empty record or return formatted dt
 def skipped_dt(data):
     if data is not None:
         return convert_dt_to_str(dt_format_display,
@@ -236,16 +255,16 @@ def skipped_dt(data):
 
 
 # used for customer report table. Return -- for empty overdue or return overdue sum with added str 'lv'
-def overdue_msg(overdue):
+def overdue_msg(overdue: str):
     if overdue is not None:
         return f"{overdue} lv"
     else:
         return "--"
 
 
-def incorrect_plus_place(phone_to_check):
+def incorrect_plus_place(phone_to_check: str):
     return [i for i in phone_to_check[1:] if i == "+"]
 
 
-def plus_not_first(phone_to_check):
+def plus_not_first(phone_to_check: str):
     return phone_to_check[0] != "+"

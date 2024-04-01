@@ -7,8 +7,9 @@ from parking.forms import CustomersRegisterForm, VehiclesRegisterForm, EditCusto
     AddSubscriptionForm, SelectEditForm, EditSubscriptionForm, LoginForm
 from parking.utilities import display_error_messages, free_parking_spots, convert_dt_to_str, dt_format_display, \
     dt_format_db, calculate_days_diff, validate_datetime_differance, new_entry_validation, str_split_pick, \
-    recalculate_sub_tax, db_uniqueness_check, validate_check_from_lst, latin_letters, cyrillic_letters, day_ahead, \
-    dt_now, formation_dt, sub_expiry_check, convert_str_to_dt, skipped_dt
+    recalculate_sub_tax, validate_check_from_lst, latin_letters, cyrillic_letters, day_ahead, \
+    dt_now, compose_dt, sub_expiry_check, convert_str_to_dt, skipped_dt, db_phone_uniqueness_check, \
+    db_reg_uniqueness_check
 from parking.messages import successful_record_msg, failed_record_msg, no_changes_msg, record_exist_msg, \
     update_record_msg, successful_del_record_msg, failed_del_record_msg, failed_update_record_msg, \
     alphabet_db_mix_msg, fee_refund, full_fee, overdue_fee, login_msg
@@ -577,10 +578,10 @@ def expire_subscriptions():
         session["exp_sub_vehicle_id"] = str_split_pick(subscription_information,
                                                        11
                                                        )
-        end_dt = formation_dt(str_split_pick(subscription_information, 0),
-                              str_split_pick(subscription_information, 1),
-                              dt_format_display
-                              )
+        end_dt = compose_dt(str_split_pick(subscription_information, 0),
+                            str_split_pick(subscription_information, 1),
+                            dt_format_display
+                            )
         expiry_check = sub_expiry_check(end_dt,
                                         dt_now()
                                         )
@@ -781,10 +782,9 @@ def customers_page():
 def add_customer():
     form = CustomersRegisterForm()
     if form.validate_on_submit():
-        phone_uniqueness = db_uniqueness_check(Customers,
-                                               request.form["phone"],
-                                               "phone"
-                                               )
+        phone_uniqueness = db_phone_uniqueness_check(Customers,
+                                                     request.form["phone"]
+                                                     )
         # checks if phone number is unique
         if phone_uniqueness:
             flash(record_exist_msg("phone number"),
@@ -885,10 +885,9 @@ def edit_customer():
     form = EditCustomerFrom(obj=customer_to_update)
     if form.validate_on_submit():
         # checks phone for uniqueness
-        phone_uniqueness = db_uniqueness_check(Customers,
-                                               request.form["phone"],
-                                               "phone"
-                                               )
+        phone_uniqueness = db_phone_uniqueness_check(Customers,
+                                                     request.form["phone"]
+                                                     )
         # takes customer's first name from html select in order to make alphabet differance check
         current_first_name = str_split_pick(customer_information,
                                             4
@@ -1079,10 +1078,9 @@ def add_vehicle():
     form = VehiclesRegisterForm()
 
     if form.validate_on_submit():
-        reg_number_uniqueness = db_uniqueness_check(Vehicles,
-                                                    request.form["vehicle_registration_number"],
-                                                    "reg_number"
-                                                    )
+        reg_number_uniqueness = db_reg_uniqueness_check(Vehicles,
+                                                        request.form["vehicle_registration_number"]
+                                                        )
         if reg_number_uniqueness:
             flash(record_exist_msg("registration number"),
                   category="info"
@@ -1200,10 +1198,9 @@ def edit_vehicle():
     form = EditVehicleFrom(obj=vehicle_to_update)
 
     if form.validate_on_submit():
-        reg_number_uniqueness = db_uniqueness_check(Vehicles,
-                                                    request.form["vehicle_registration_number"],
-                                                    "reg_number"
-                                                    )
+        reg_number_uniqueness = db_reg_uniqueness_check(Vehicles,
+                                                        request.form["vehicle_registration_number"]
+                                                        )
         updated_reg_number, reg_number_not_changed = new_entry_validation(str_split_pick(vehicle_information, 4),
                                                                           request.form[
                                                                               "vehicle_registration_number"].upper()

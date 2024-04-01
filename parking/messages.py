@@ -39,6 +39,8 @@ invalid_type_msg = ("The vehicle type is invalid. Only letters are allowed. A mi
                     "is not allowed")
 min_sub_period_msg = "Minimum subscription period is 24 hours"
 max_sub_period_msg = "Maximum subscription period is one year"
+start_date_system_msg = "start date is taken automatically from the system"
+start_date_previous_sub_msg = "start date is the end date of the previous subscription"
 
 
 def record_exist_msg(record):
