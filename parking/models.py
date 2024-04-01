@@ -3,17 +3,18 @@ from flask_login import UserMixin
 
 
 @login_manager.user_loader
-def load_user(user_id):
+def load_user(user_id: int):
     return Users.query.get(int(user_id))
 
 
+# application users model
 class Users(db.Model, UserMixin):
     id = db.Column(db.Integer, db.Identity(), primary_key=True)
     username = db.Column(db.String(20), unique=True, nullable=False)
     password = db.Column(db.String(30), nullable=False)
 
 
-# table models
+# customers model
 class Customers(db.Model):
     __tablename__ = "customers"
     customer_id = db.Column(db.Integer, db.Identity(), primary_key=True)
@@ -28,6 +29,7 @@ class Customers(db.Model):
         return f"{self.first_name} {self.last_name} / phone: {self.phone} / address: {self.address})"
 
 
+# vehicle model
 class Vehicles(db.Model):
     __tablename__ = "vehicles"
     vehicle_id = db.Column(db.Integer, db.Identity(), primary_key=True)
@@ -43,6 +45,7 @@ class Vehicles(db.Model):
         db.Integer, db.ForeignKey("customers.customer_id", ondelete="CASCADE"), nullable=False)
 
 
+# subscription model
 class Subscriptions(db.Model):
     __tablename__ = "subscriptions"
     subscription_id = db.Column(db.Integer, db.Identity(), primary_key=True)
@@ -63,6 +66,6 @@ class Subscriptions(db.Model):
 # create table models
 with app.app_context():
     # clear all the table definitions held in memory in order to declare tables again
-    #db.metadata.clear()
+    # db.metadata.clear()
     db.create_all()
     # db.drop_all()
