@@ -1,4 +1,3 @@
-from flask import flash
 import string
 import cyrtranslit
 import datetime
@@ -41,15 +40,6 @@ str_model_latin_compare_lst = latin_letters + num_to_compare
 str_model_cyrillic_compare_lst = cyrillic_letters + num_to_compare
 str_color_latin_dash_compare_lst = latin_letters + ["-"]
 str_color_cyrillic_dash_compare_lst = cyrillic_letters + ["-"]
-
-
-# display error messages
-def display_error_messages(form_var):
-    if form_var.errors != {}:
-        for err_msg in form_var.errors.values():
-            flash(f"{err_msg[0]}",
-                  category="info"
-                  )
 
 
 # check for blank spaces
@@ -196,17 +186,26 @@ def format_time(time):
     return ''.join(time.split())[:-3]
 
 
-def compose_dt(date: str, time: str, db_format: str):
+def compose_dt(date: str, time: str, dt_format: str):
     date = manual_str_char_swap_dt(date)
     time = format_time(time)
     gather_str_dt = date + " " + time
-    return convert_str_to_dt(gather_str_dt, db_format)
+    return convert_str_to_dt(gather_str_dt, dt_format)
+
+
+def if_end_dt_bigger(end_dt: datetime):
+    return end_dt > dt_now()
+
+
+def if_now_dt_bigger(end_dt: datetime, now_dt: datetime):
+    return end_dt < now_dt
 
 
 def sub_expiry_check(end_dt: datetime, now_dt: datetime):
     # checks for subscription overdue expiration. If so calculate extra fee. Also return different start dt,
     # and different start dt info
-    if end_dt < now_dt:
+    is_now_dt_bigger = if_now_dt_bigger(end_dt=end_dt, now_dt=now_dt)
+    if is_now_dt_bigger:
         # if differance is less than 24h the day differance will become 1. Otherwise, will calculate the fee
         time_differance_under_a_day = calculate_days_diff(end_dt, now_dt)[0] == 0
         if time_differance_under_a_day:

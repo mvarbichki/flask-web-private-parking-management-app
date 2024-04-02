@@ -1,3 +1,15 @@
+from flask import flash
+
+
+# display error messages
+def display_error_messages(form):
+    if form.errors != {}:
+        for err_msg in form.errors.values():
+            flash(message=f"{err_msg[0]}",
+                  category="info"
+                  )
+
+
 # messages
 successful_record_msg = "The record was added successfully"
 failed_record_msg = "Adding the record failed. Try again"
@@ -41,6 +53,8 @@ min_sub_period_msg = "Minimum subscription period is 24 hours"
 max_sub_period_msg = "Maximum subscription period is one year"
 start_date_system_msg = "start date is taken automatically from the system"
 start_date_previous_sub_msg = "start date is the end date of the previous subscription"
+wrong_user_credential = "Wrong user or password"
+user_logged_out = "Logged out"
 
 
 def record_exist_msg(record):
