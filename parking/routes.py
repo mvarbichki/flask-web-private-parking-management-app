@@ -1539,7 +1539,7 @@ def customer_report():
     date_of_registration = convert_dt_to_str(dt_format=dt_format_display,
                                              dt=customer_record.registration_date
                                              )
-    date_of_editing = skipped_dt(data=customer_record.date_of_editing)
+    date_of_editing = skipped_dt(dt_db=customer_record.date_of_editing)
 
     return render_template(template_name_or_list="customer_report.html",
                            imprt=importlib.import_module,

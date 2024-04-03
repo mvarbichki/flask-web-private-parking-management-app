@@ -86,6 +86,7 @@ def calculate_days_diff(start_date: datetime, end_date: datetime):
         else:
             delta = end_date - start_date
             is_negative = False
+    # if equals start date will be always the greater one
     elif start_date == end_date:
         delta = end_date - start_date
     # get difference in days
@@ -93,7 +94,7 @@ def calculate_days_diff(start_date: datetime, end_date: datetime):
     return days_diff, is_negative
 
 
-def convert_dt_to_str(dt_format, dt=None):
+def convert_dt_to_str(dt_format: str, dt: datetime = None):
     if dt is None:
         return datetime.datetime.now().strftime(dt_format)
     else:
@@ -106,7 +107,7 @@ def manual_str_char_swap_dt(str_dt: str):
     characters_list[0], characters_list[1], characters_list[2], characters_list[3], characters_list[4], characters_list[
         5], characters_list[6], characters_list[7], characters_list[8], characters_list[9] = \
         characters_list[8], characters_list[9], "/", characters_list[5], characters_list[6], "/", characters_list[0], \
-        characters_list[1], characters_list[2], characters_list[3]
+            characters_list[1], characters_list[2], characters_list[3]
     # convert list back to string
     swapped_str = "".join(characters_list)
     return swapped_str
@@ -125,7 +126,7 @@ def validate_datetime_differance(start_dt: datetime, end_dt: datetime, days: dat
         return max_sub_period_msg
 
 
-def new_entry_validation(current_record, new_entry, is_address: bool = None):
+def new_entry_validation(current_record: str, new_entry: str, is_address: bool = None):
     # skip changes if field is empty or if the change is same as the db record
     if not is_address:
         if (current_record == new_entry) or (new_entry == ""):
@@ -190,7 +191,9 @@ def compose_dt(date: str, time: str, dt_format: str):
     date = manual_str_char_swap_dt(date)
     time = format_time(time)
     gather_str_dt = date + " " + time
-    return convert_str_to_dt(gather_str_dt, dt_format)
+    return convert_str_to_dt(str_dt=gather_str_dt,
+                             dt_format=dt_format
+                             )
 
 
 def if_end_dt_bigger(end_dt: datetime):
@@ -204,17 +207,19 @@ def if_now_dt_bigger(end_dt: datetime, now_dt: datetime):
 def sub_expiry_check(end_dt: datetime, now_dt: datetime):
     # checks for subscription overdue expiration. If so calculate extra fee. Also return different start dt,
     # and different start dt info
-    is_now_dt_bigger = if_now_dt_bigger(end_dt=end_dt, now_dt=now_dt)
+    is_now_dt_bigger = if_now_dt_bigger(end_dt=end_dt,
+                                        now_dt=now_dt
+                                        )
     if is_now_dt_bigger:
         # if differance is less than 24h the day differance will become 1. Otherwise, will calculate the fee
-        time_differance_under_a_day = calculate_days_diff(end_dt, now_dt)[0] == 0
+        time_differance_under_a_day = calculate_days_diff(start_date=end_dt, end_date=now_dt)[0] == 0
         if time_differance_under_a_day:
             overdue_period = 1
         else:
-            overdue_period = calculate_days_diff(end_dt, now_dt)[0]
+            overdue_period = calculate_days_diff(start_date=end_dt, end_date=now_dt)[0]
         overdue_sum = "{:.2f}".format(overdue_period * 5)
-        renew_start_dt = convert_dt_to_str(dt_format_display)
-        renew_start_dt_db = convert_dt_to_str(dt_format_db)
+        renew_start_dt = convert_dt_to_str(dt_format=dt_format_display)
+        renew_start_dt_db = convert_dt_to_str(dt_format=dt_format_db)
         return (overdue_sum,
                 "YES",
                 renew_start_dt,
@@ -223,8 +228,12 @@ def sub_expiry_check(end_dt: datetime, now_dt: datetime):
                 datetime.datetime.now()
                 )
     else:
-        renew_start_dt = convert_dt_to_str(dt_format_display, dt=end_dt)
-        renew_start_dt_db = convert_dt_to_str(dt_format_db, dt=end_dt)
+        renew_start_dt = convert_dt_to_str(dt_format=dt_format_display,
+                                           dt=end_dt
+                                           )
+        renew_start_dt_db = convert_dt_to_str(dt_format=dt_format_db,
+                                              dt=end_dt
+                                              )
         return ("--",
                 "NO",
                 renew_start_dt,
@@ -244,10 +253,10 @@ def sub_status_msg(status: bool):
 
 
 # used for customer report table. Returns -- instead empty record or return formatted dt
-def skipped_dt(data: str):
-    if data is not None:
-        return convert_dt_to_str(dt_format_display,
-                                 data
+def skipped_dt(dt_db: str):
+    if dt_db is not None:
+        return convert_dt_to_str(dt_format=dt_format_display,
+                                 dt=dt_db
                                  )
     else:
         return "--"
