@@ -12,8 +12,8 @@ from parking.utilities import free_parking_spots, convert_dt_to_str, dt_format_d
     db_reg_uniqueness_check, if_end_dt_bigger
 from parking.messages import successful_record_msg, failed_record_msg, no_changes_msg, record_exist_msg, \
     update_record_msg, successful_del_record_msg, failed_del_record_msg, failed_update_record_msg, \
-    alphabet_db_mix_msg, fee_refund_msg, full_fee_msg, overdue_fee_msg, login_msg, wrong_user_credential, user_logged_out, \
-    display_error_messages
+    alphabet_db_mix_msg, fee_refund_msg, full_fee_msg, overdue_fee_msg, login_msg, wrong_user_credential, \
+    user_logged_out, display_error_messages
 from flask_login import login_user, login_required, logout_user
 
 
