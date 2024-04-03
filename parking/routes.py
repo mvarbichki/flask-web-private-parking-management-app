@@ -12,7 +12,7 @@ from parking.utilities import free_parking_spots, convert_dt_to_str, dt_format_d
     db_reg_uniqueness_check, if_end_dt_bigger
 from parking.messages import successful_record_msg, failed_record_msg, no_changes_msg, record_exist_msg, \
     update_record_msg, successful_del_record_msg, failed_del_record_msg, failed_update_record_msg, \
-    alphabet_db_mix_msg, fee_refund, full_fee, overdue_fee, login_msg, wrong_user_credential, user_logged_out, \
+    alphabet_db_mix_msg, fee_refund_msg, full_fee_msg, overdue_fee_msg, login_msg, wrong_user_credential, user_logged_out, \
     display_error_messages
 from flask_login import login_user, login_required, logout_user
 
@@ -297,7 +297,7 @@ def confirmation_edit_cancel_subscription():
         else:
             days = calculate_days_diff(start_date=end_dt, end_date=dt_now())[0]
         tax_to_refund = float(days * 5)
-        tax_to_refund_msg = fee_refund(obj=tax_to_refund)
+        tax_to_refund_msg = fee_refund_msg(obj=tax_to_refund)
     else:
         tax_to_refund = ""
 
@@ -307,7 +307,7 @@ def confirmation_edit_cancel_subscription():
                            last_name=session.get("select_sub_last_name"),
                            reg_number=session.get("sub_vehicle_plate_num"),
                            parking_spot=session.get("select_sub_spot"),
-                           full_sub_fee=full_fee(session.get("tax_edit")),
+                           full_sub_fee=full_fee_msg(session.get("tax_edit")),
                            fee_refund=tax_to_refund_msg
                            )
 
@@ -627,7 +627,7 @@ def confirmation_exp_cancel_subscription():
     overdue_msg = ""
     overdue = session.get("overdue_fee") != "--"
     if overdue:
-        overdue_msg = overdue_fee(session.get('overdue_fee'))
+        overdue_msg = overdue_fee_msg(session.get('overdue_fee'))
 
     return render_template(template_name_or_list="confirmation_exp_cancel_subscription.html",
                            first_name=session.get("exp_sub_first_name"),

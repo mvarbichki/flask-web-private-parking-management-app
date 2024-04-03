@@ -57,33 +57,33 @@ wrong_user_credential = "Wrong user or password"
 user_logged_out = "Logged out"
 
 
-def record_exist_msg(record):
+def record_exist_msg(record: str):
     return f"The {record} already exists"
 
 
-def letters_mix_msg(obj_one, obj_two):
+def letters_mix_msg(obj_one: str, obj_two:str):
     return f"{obj_one} and {obj_two} are different alphabet. Use only latin or cyrillic {obj_one}"
 
 
-def alphabet_db_mix_msg(obj):
+def alphabet_db_mix_msg(obj: str):
     return f"{obj} is a different alphabet from the DB record. Use the alphabet type which will match"
 
 
-def fee_refund(obj):
+def fee_refund_msg(obj: float):
     return f"Refund of remaining subscription time: {'{:.2f}'.format(obj)} lv"
 
 
-def full_fee(obj):
+def full_fee_msg(obj: str):
     return f"Full subscription fee: {obj} lv"
 
 
-def overdue_fee(obj):
+def overdue_fee_msg(obj: str):
     return f"Overdue subscription fees: {obj} lv"
 
 
-def login_msg(obj):
+def login_msg(obj: str):
     return f"{obj} logged in"
 
 
-def blank_space_msg(obj):
+def blank_space_msg(obj: str):
     return f"Remove any blank space from {obj}"
