@@ -49,8 +49,8 @@ def blank_space_check(form_var: str):
 
 
 # compare str to list for allowed symbols
-def validate_check_from_lst(var_to_check: str, lst_to_compare: list):
-    is_forbidden_symbol = [i for i in var_to_check if i not in lst_to_compare]
+def validate_check_from_lst(var_to_check: str, list_to_compare: list):
+    is_forbidden_symbol = [i for i in var_to_check if i not in list_to_compare]
     return is_forbidden_symbol
 
 
@@ -62,11 +62,11 @@ def first_last_ele_check(var_to_check: str, ele: str):
 
 
 # creates a list of not occupied parking spots. It creates 60 parking spots and reverse the order
-def free_parking_spots(db_lst: list):
+def free_parking_spots(db_list: list):
     # creates 60 parking spots. Parking available spots can be reduced or increased by the second argument
     available_parking_spots = range(1, 61)
     # gets all the occupied parking spots from the DB and adds them to a list
-    occupied_spots = [str(elem) for elem in db_lst]
+    occupied_spots = [str(elem) for elem in db_list]
     unoccupied_spots = []
     for spot in available_parking_spots:
         # if spot is not in occupied spots adds it to the unoccupied spot list
@@ -244,7 +244,7 @@ def sub_status_msg(status: bool):
 
 
 # used for customer report table. Returns -- instead empty record or return formatted dt
-def skipped_dt(data):
+def skipped_dt(data: str):
     if data is not None:
         return convert_dt_to_str(dt_format_display,
                                  data

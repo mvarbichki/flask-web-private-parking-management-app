@@ -18,8 +18,6 @@ from flask_login import login_user, login_required, logout_user
 
 
 # TODO
-
-# slow queries/loader
 # create log to write errs
 
 
@@ -38,7 +36,7 @@ def login():
                 flash(message=login_msg(attempted_user.username),
                       category="success"
                       )
-                return redirect(url_for("home_page"))
+                return redirect(location=url_for("home_page"))
         flash(message=wrong_user_credential,
               category="info"
               )
@@ -81,14 +79,16 @@ def add_subscription():
         Customers.first_name,
         Customers.last_name,
         Customers.phone
-    ).join(Vehicles, Customers.customer_id == Vehicles.customer_id)
+    ).join(Vehicles,
+           Customers.customer_id == Vehicles.customer_id)
                                    ).filter(Vehicles.is_subscribed.is_(False)).all()
 
     # gets a list of all free parking spots based on active subscription
     free_spots_list = free_parking_spots(
-        Subscriptions.query.join(Vehicles, Subscriptions.vehicle_id == Vehicles.vehicle_id
-                                 ).where(Subscriptions.subscription_status == "ACTIVE"))
-
+        db_list=Subscriptions.query.join(Vehicles,
+                                         Subscriptions.vehicle_id == Vehicles.vehicle_id
+                                         ).where(Subscriptions.subscription_status == "ACTIVE")
+    )
     current_dt = convert_dt_to_str(dt_format=dt_format_display)
     form = AddSubscriptionForm()
 
@@ -210,10 +210,13 @@ def select_subscription_edit():
         Subscriptions.parking_spot_number,
         Subscriptions.tax,
         Vehicles.vehicle_id
-    ).join(Vehicles, Customers.customer_id == Vehicles.customer_id)
-               .join(Subscriptions, Vehicles.vehicle_id == Subscriptions.vehicle_id)).filter(
-        Vehicles.is_subscribed.is_(True), Subscriptions.end_date > day_ahead(),
-                                          Subscriptions.subscription_status == "ACTIVE").all()
+    ).join(Vehicles,
+           Customers.customer_id == Vehicles.customer_id
+           ).join(Subscriptions,
+                  Vehicles.vehicle_id == Subscriptions.vehicle_id)
+               ).filter(Vehicles.is_subscribed.is_(True),
+                        Subscriptions.end_date > day_ahead(),
+                        Subscriptions.subscription_status == "ACTIVE").all()
 
     form = SelectEditForm()
 
@@ -263,6 +266,7 @@ def select_subscription_edit():
                                                               dt_format=dt_format_display
                                                               )
         return redirect(location=url_for("edit_subscription_option"))
+
     display_error_messages(form=form)
     return render_template(template_name_or_list="select_subscription_edit.html",
                            form=form,
@@ -293,7 +297,7 @@ def confirmation_edit_cancel_subscription():
         else:
             days = calculate_days_diff(start_date=end_dt, end_date=dt_now())[0]
         tax_to_refund = float(days * 5)
-        tax_to_refund_msg = fee_refund(tax_to_refund)
+        tax_to_refund_msg = fee_refund(obj=tax_to_refund)
     else:
         tax_to_refund = ""
 
@@ -370,13 +374,16 @@ def edit_subscription():
         Customers.last_name,
         Customers.customer_id,
         Customers.phone
-    ).join(Vehicles, Customers.customer_id == Vehicles.customer_id)
+    ).join(Vehicles,
+           Customers.customer_id == Vehicles.customer_id)
                             ).filter(Vehicles.is_subscribed.is_(False),
                                      Customers.customer_id == session.get("sub_customer_id")).all()
     # gets list of the not occupied parking spots
     free_spots_list = free_parking_spots(
-        Subscriptions.query.join(Vehicles, Subscriptions.vehicle_id == Vehicles.vehicle_id
-                                 ).where(Subscriptions.subscription_status == "ACTIVE"))
+        db_list=Subscriptions.query.join(Vehicles,
+                                         Subscriptions.vehicle_id == Vehicles.vehicle_id
+                                         ).where(Subscriptions.subscription_status == "ACTIVE")
+    )
     # gets subscription session by id
     subscription = Subscriptions.query.get(session.get("sub_parking_id"))
     # populates edit form with selected sub info
@@ -519,7 +526,6 @@ def edit_sub_yes_but_action():
 
         subscription_to_update.date_of_editing = convert_dt_to_str(dt_format=dt_format_db)
         db.session.commit()
-
         flash(message=update_record_msg,
               category="success"
               )
@@ -548,11 +554,14 @@ def expire_subscriptions():
         Customers.phone,
         Vehicles.vehicle_id,
         Subscriptions.subscription_id
-    ).join(Vehicles, Customers.customer_id == Vehicles.customer_id)
-                      .join(Subscriptions, Vehicles.vehicle_id == Subscriptions.vehicle_id)).filter(
-        Subscriptions.end_date < day_ahead(), Vehicles.is_subscribed.is_(True),
-        Subscriptions.subscription_status == "ACTIVE"
-    ).order_by(Subscriptions.end_date).all()
+    ).join(Vehicles,
+           Customers.customer_id == Vehicles.customer_id
+           ).join(Subscriptions,
+                  Vehicles.vehicle_id == Subscriptions.vehicle_id)
+                      ).filter(Subscriptions.end_date < day_ahead(),
+                               Vehicles.is_subscribed.is_(True),
+                               Subscriptions.subscription_status == "ACTIVE"
+                               ).order_by(Subscriptions.end_date).all()
 
     if request.method == "POST":
         subscription_information = request.form.get("sub_table_info")
@@ -669,8 +678,9 @@ def cancel_exp_yes_but_action():
 def renew_subscription():
     parking_spot = session.get("exp_sub_spot_num")
     free_spots_list = free_parking_spots(
-        db_lst=Subscriptions.query.join(Vehicles, Subscriptions.vehicle_id == Vehicles.vehicle_id
-                                        ).where(Subscriptions.subscription_status == "ACTIVE")
+        db_list=Subscriptions.query.join(Vehicles,
+                                         Subscriptions.vehicle_id == Vehicles.vehicle_id
+                                         ).where(Subscriptions.subscription_status == "ACTIVE")
     )
     expiry_check = session.get("expiry_check")
     form = EditSubscriptionForm()
@@ -927,10 +937,18 @@ def edit_customer():
                                                                     is_address=True
                                                                     )
         new_phone = current_phone != updated_phone
-        invalid_current_first_name_latin = validate_check_from_lst(current_first_name, latin_letters)
-        invalid_updated_first_name_cyrillic = validate_check_from_lst(updated_first_name, cyrillic_letters)
-        invalid_current_first_name_cyrillic = validate_check_from_lst(current_first_name, cyrillic_letters)
-        invalid_updated_first_name_latin = validate_check_from_lst(updated_first_name, latin_letters)
+        invalid_current_first_name_latin = validate_check_from_lst(var_to_check=current_first_name,
+                                                                   list_to_compare=latin_letters
+                                                                   )
+        invalid_updated_first_name_cyrillic = validate_check_from_lst(var_to_check=updated_first_name,
+                                                                      list_to_compare=cyrillic_letters
+                                                                      )
+        invalid_current_first_name_cyrillic = validate_check_from_lst(var_to_check=current_first_name,
+                                                                      list_to_compare=cyrillic_letters
+                                                                      )
+        invalid_updated_first_name_latin = validate_check_from_lst(var_to_check=updated_first_name,
+                                                                   list_to_compare=latin_letters
+                                                                   )
         # prevents to continue if the first name is different alphabet from the existing db record. The same check
         # for the rest customer's fields continues in the edit customer form. There, for comparing is used the
         # first name again which is already in the correct alphabet because of this check
@@ -1135,7 +1153,6 @@ def add_vehicle():
                            )
 
 
-# TODO continue improvement from confirmation_vehicle
 @app.route("/confirmation_vehicle")
 @login_required
 def confirmation_vehicle():
@@ -1150,12 +1167,11 @@ def confirmation_vehicle():
                                          brand=brand,
                                          model=model,
                                          color=color,
-                                         registration_date=convert_dt_to_str(dt_format_db),
+                                         registration_date=convert_dt_to_str(dt_format=dt_format_db),
                                          is_subscribed=False,
                                          customer_id=session.get("add_customer_id")
                                          )
-
-    return render_template("confirmation_vehicle.html",
+    return render_template(template_name_or_list="confirmation_vehicle.html",
                            reg_number=reg_number,
                            vehicle_type=vehicle_type,
                            brand=brand,
@@ -1171,17 +1187,17 @@ def add_vehicle_yes_but_action():
     try:
         db.session.add(session.get("vehicle_to_add"))
         db.session.commit()
-        flash(successful_record_msg,
+        flash(message=successful_record_msg,
               category="success"
               )
-        return redirect(url_for("subscriptions_page"))
+        return redirect(location=url_for("subscriptions_page"))
     except Exception as err:
         # TODO write in log file errs
         db.session.rollback()
-        flash(failed_record_msg,
+        flash(message=failed_record_msg,
               category="danger"
               )
-        return redirect(url_for("vehicles_page"))
+        return redirect(location=url_for("vehicles_page"))
     finally:
         db.session.close()
 
@@ -1195,10 +1211,10 @@ def select_vehicle_edit():
 
     if form.validate_on_submit():
         session["vehicle_information"] = request.form.get("selectVehicleEdit")
-        return redirect(url_for("edit_vehicle"))
+        return redirect(location=url_for("edit_vehicle"))
 
-    display_error_messages(form)
-    return render_template("select_vehicle_edit.html",
+    display_error_messages(form=form)
+    return render_template(template_name_or_list="select_vehicle_edit.html",
                            form=form,
                            vehicles_list=vehicles_list
                            )
@@ -1209,57 +1225,92 @@ def select_vehicle_edit():
 def edit_vehicle():
     vehicle_information = session.get("vehicle_information")
 
-    vehicle_id = str_split_pick(vehicle_information,
-                                0,
-                                True
+    vehicle_id = str_split_pick(str_to_split=vehicle_information,
+                                index=0,
+                                return_int=True
                                 )
     vehicle_to_update = db.session.get(Vehicles,
                                        vehicle_id
                                        )
-
     # gets a customer name from the db that corresponds of the given vehicle. It will be used for latin-cyrillic check
     # and preventing mix db records between them
     customer_first_name_db = (db.session.query(
         Customers.first_name
-    ).join(Vehicles, Customers.customer_id == Vehicles.customer_id)
+    ).join(Vehicles,
+           Customers.customer_id == Vehicles.customer_id)
                               ).filter(Vehicles.vehicle_id == vehicle_id).first()[0]
 
     form = EditVehicleFrom(obj=vehicle_to_update)
 
     if form.validate_on_submit():
-        reg_number_exist = db_reg_uniqueness_check(Vehicles,
-                                                   request.form["vehicle_registration_number"]
+        reg_number_exist = db_reg_uniqueness_check(model=Vehicles,
+                                                   form_data=request.form["vehicle_registration_number"]
                                                    )
-        updated_reg_number, reg_number_not_changed = new_entry_validation(str_split_pick(vehicle_information, 4),
-                                                                          request.form[
-                                                                              "vehicle_registration_number"].upper()
+
+        current_reg_number = str_split_pick(str_to_split=vehicle_information,
+                                            index=4
+                                            )
+        new_reg_number = request.form["vehicle_registration_number"].upper()
+        updated_reg_number, reg_number_not_changed = new_entry_validation(current_record=current_reg_number,
+                                                                          new_entry=new_reg_number
                                                                           )
-        updated_type, type_not_changed = new_entry_validation(str_split_pick(vehicle_information, 7),
-                                                              request.form["vehicle_type"].upper()
+
+        current_type = str_split_pick(str_to_split=vehicle_information,
+                                      index=7
+                                      )
+        new_type = request.form["vehicle_type"].upper()
+        updated_type, type_not_changed = new_entry_validation(current_record=current_type,
+                                                              new_entry=new_type
                                                               )
-        updated_brand, brand_not_changed = new_entry_validation(str_split_pick(vehicle_information, 10),
-                                                                request.form["brand"].upper()
+
+        current_brand = str_split_pick(str_to_split=vehicle_information,
+                                       index=10
+                                       )
+        new_brand = request.form["brand"].upper()
+        updated_brand, brand_not_changed = new_entry_validation(current_record=current_brand,
+                                                                new_entry=new_brand
                                                                 )
-        updated_model, model_not_changed = new_entry_validation(str_split_pick(vehicle_information, 13),
-                                                                request.form["model"].upper()
+
+        current_model = str_split_pick(str_to_split=vehicle_information,
+                                       index=13
+                                       )
+        new_model = request.form["model"].upper()
+        updated_model, model_not_changed = new_entry_validation(current_record=current_model,
+                                                                new_entry=new_model
                                                                 )
-        updated_color, color_not_changed = new_entry_validation(str_split_pick(vehicle_information, 16),
-                                                                request.form["color"].upper()
+
+        current_color = str_split_pick(str_to_split=vehicle_information,
+                                       index=16
+                                       )
+        new_color = request.form["color"].upper()
+        updated_color, color_not_changed = new_entry_validation(current_record=current_color,
+                                                                new_entry=new_color
                                                                 )
-        if (validate_check_from_lst(customer_first_name_db, latin_letters) and
-            validate_check_from_lst(updated_type, cyrillic_letters)) or \
-                (validate_check_from_lst(customer_first_name_db, cyrillic_letters) and
-                 validate_check_from_lst(updated_type, latin_letters)):
-            flash(alphabet_db_mix_msg("The vehicle type"),
+        new_reg_number = current_reg_number != updated_reg_number
+        invalid_current_first_name_latin = validate_check_from_lst(var_to_check=customer_first_name_db,
+                                                                   list_to_compare=latin_letters
+                                                                   )
+        invalid_updated_type_cyrillic = validate_check_from_lst(var_to_check=updated_type,
+                                                                list_to_compare=cyrillic_letters
+                                                                )
+        invalid_current_first_name_cyrillic = validate_check_from_lst(var_to_check=customer_first_name_db,
+                                                                      list_to_compare=cyrillic_letters
+                                                                      )
+        invalid_updated_type_latin = validate_check_from_lst(var_to_check=updated_type,
+                                                             list_to_compare=latin_letters
+                                                             )
+        if (invalid_current_first_name_latin and invalid_updated_type_cyrillic) or \
+                (invalid_current_first_name_cyrillic and invalid_updated_type_latin):
+            flash(message=alphabet_db_mix_msg("The vehicle type"),
                   category="info"
                   )
-        elif reg_number_exist and (str_split_pick(vehicle_information, 4) != updated_reg_number):
-            flash(record_exist_msg("registration number"),
+        elif reg_number_exist and new_reg_number:
+            flash(message=record_exist_msg("registration number"),
                   category="info"
                   )
         elif (reg_number_not_changed and type_not_changed and brand_not_changed and model_not_changed and
               color_not_changed):
-            flash(no_changes_msg,
+            flash(message=no_changes_msg,
                   category="info"
                   )
         else:
@@ -1269,10 +1320,10 @@ def edit_vehicle():
             session["the_new_model"] = (updated_model, model_not_changed)
             session["the_new_color"] = (updated_color, color_not_changed)
             session["edit_vehicle_id"] = vehicle_id
-            return redirect(url_for("confirmation_edit_vehicle"))
+            return redirect(location=url_for("confirmation_edit_vehicle"))
 
-    display_error_messages(form)
-    return render_template("edit_vehicle.html",
+    display_error_messages(form=form)
+    return render_template(template_name_or_list="edit_vehicle.html",
                            form=form
                            )
 
@@ -1280,7 +1331,7 @@ def edit_vehicle():
 @app.route("/confirmation_edit_vehicle")
 @login_required
 def confirmation_edit_vehicle():
-    return render_template("confirmation_edit_vehicle.html",
+    return render_template(template_name_or_list="confirmation_edit_vehicle.html",
                            updated_reg_number=session.get("the_new_reg_number")[0],
                            updated_type=session.get("the_new_type")[0],
                            updated_brand=session.get("the_new_brand")[0],
@@ -1327,21 +1378,21 @@ def edit_vehicle_yes_but_action():
         else:
             vehicle_to_update.color = updated_color.upper()
 
-        vehicle_to_update.date_of_editing = convert_dt_to_str(dt_format_db)
+        vehicle_to_update.date_of_editing = convert_dt_to_str(dt_format=dt_format_db)
 
         db.session.commit()
-        flash(update_record_msg,
+        flash(message=update_record_msg,
               category="success"
               )
     except Exception as err:
         # TODO write in log file errs
         db.session.rollback()
-        flash(failed_update_record_msg,
+        flash(message=failed_update_record_msg,
               category="danger"
               )
     finally:
         db.session.close()
-        return redirect(url_for("vehicles_page"))
+        return redirect(location=url_for("vehicles_page"))
 
 
 @app.route("/select_delete_vehicle", methods=["GET", "POST"])
@@ -1353,17 +1404,17 @@ def select_delete_vehicle():
     if form.validate_on_submit():
         vehicle_information = request.form.get("selectVehicleDelete")
 
-        session["del_vehicle_id"] = str_split_pick(vehicle_information,
-                                                   0,
-                                                   True
+        session["del_vehicle_id"] = str_split_pick(str_to_split=vehicle_information,
+                                                   index=0,
+                                                   return_int=True
                                                    )
-        session["del_vehicle_reg_num"] = str_split_pick(vehicle_information,
-                                                        4
+        session["del_vehicle_reg_num"] = str_split_pick(str_to_split=vehicle_information,
+                                                        index=4
                                                         )
-        return redirect(url_for("confirmation_deleting_vehicle"))
+        return redirect(location=url_for("confirmation_deleting_vehicle"))
 
-    display_error_messages(form)
-    return render_template("select_delete_vehicle.html",
+    display_error_messages(form=form)
+    return render_template(template_name_or_list="select_delete_vehicle.html",
                            form=form,
                            vehicles_list=vehicles_list
                            )
@@ -1376,14 +1427,15 @@ def confirmation_deleting_vehicle():
     first_name, last_name = (db.session.query(
         Customers.first_name,
         Customers.last_name
-    ).join(Vehicles, Customers.customer_id == Vehicles.customer_id)
+    ).join(Vehicles,
+           Customers.customer_id == Vehicles.customer_id)
                              ).filter(Vehicles.vehicle_id == session.get("del_vehicle_id")).first()
 
     session["vehicle_to_delete"] = db.session.get(Vehicles,
                                                   session.get("del_vehicle_id")
                                                   )
 
-    return render_template("confirmation_deleting_vehicle.html",
+    return render_template(template_name_or_list="confirmation_deleting_vehicle.html",
                            first_name=first_name,
                            last_name=last_name,
                            reg_number=session.get("del_vehicle_reg_num")
@@ -1396,24 +1448,24 @@ def vehicle_yes_but_del_action():
     try:
         db.session.delete(session.get("vehicle_to_delete"))
         db.session.commit()
-        flash(successful_del_record_msg,
+        flash(message=successful_del_record_msg,
               category="success"
               )
     except Exception as err:
         # TODO write err in log
         db.session.rollback()
-        flash(failed_del_record_msg,
+        flash(message=failed_del_record_msg,
               category="danger"
               )
     finally:
         db.session.close()
-        return redirect(url_for("vehicles_page"))
+        return redirect(location=url_for("vehicles_page"))
 
 
 @app.route("/reports")
 @login_required
 def reports_page():
-    return render_template("reports.html")
+    return render_template(template_name_or_list="reports.html")
 
 
 @app.route("/select_customer_report", methods=["GET", "POST"])
@@ -1425,20 +1477,19 @@ def select_customer_report():
     if form.validate_on_submit():
         customer_information = request.form.get("selectCustomerReport")
 
-        session["customer_id_report"] = str_split_pick(customer_information,
-                                                       0,
-                                                       True
+        session["customer_id_report"] = str_split_pick(str_to_split=customer_information,
+                                                       index=0,
+                                                       return_int=True
                                                        )
-        session["first_name_report"] = str_split_pick(customer_information,
-                                                      4
+        session["first_name_report"] = str_split_pick(str_to_split=customer_information,
+                                                      index=4
                                                       )
-        session["last_name_report"] = str_split_pick(customer_information,
-                                                     8
+        session["last_name_report"] = str_split_pick(str_to_split=customer_information,
+                                                     index=8
                                                      )
+        return redirect(location=url_for("customer_report"))
 
-        return redirect(url_for("customer_report"))
-
-    return render_template("select_customer_report.html",
+    return render_template(template_name_or_list="select_customer_report.html",
                            customers_list=customers_list,
                            form=form
                            )
@@ -1462,7 +1513,8 @@ def customer_report():
         Vehicles.registration_date,
         Vehicles.date_of_editing,
         Vehicles.is_subscribed
-    ).join(Vehicles, Customers.customer_id == Vehicles.customer_id)
+    ).join(Vehicles,
+           Customers.customer_id == Vehicles.customer_id)
                             ).filter(Customers.customer_id == customer_id
                                      ).order_by(Vehicles.registration_date).all()
     # full list of customer subscription
@@ -1476,18 +1528,20 @@ def customer_report():
         Subscriptions.end_date,
         Subscriptions.overdue_fee,
         Subscriptions.date_of_editing
-    ).join(Vehicles, Vehicles.customer_id == Customers.customer_id
-           ).join(Subscriptions, Subscriptions.vehicle_id == Vehicles.vehicle_id
+    ).join(Vehicles,
+           Vehicles.customer_id == Customers.customer_id
+           ).join(Subscriptions,
+                  Subscriptions.vehicle_id == Vehicles.vehicle_id
                   ).filter(Customers.customer_id == customer_id
-                           ).order_by(Vehicles.vehicle_registration_number, Subscriptions.start_date).all()
+                           ).order_by(Vehicles.vehicle_registration_number,
+                                      Subscriptions.start_date).all()
 
-    date_of_registration = convert_dt_to_str(dt_format_display,
-                                             customer_record.registration_date
+    date_of_registration = convert_dt_to_str(dt_format=dt_format_display,
+                                             dt=customer_record.registration_date
                                              )
+    date_of_editing = skipped_dt(data=customer_record.date_of_editing)
 
-    date_of_editing = skipped_dt(customer_record.date_of_editing)
-
-    return render_template("customer_report.html",
+    return render_template(template_name_or_list="customer_report.html",
                            imprt=importlib.import_module,
                            first_name=session.get("first_name_report"),
                            last_name=session.get("last_name_report"),
@@ -1504,9 +1558,10 @@ def customer_report():
 @login_required
 def free_parking_spots_report():
     free_spots_list = free_parking_spots(
-        Subscriptions.query.join(Vehicles, Subscriptions.vehicle_id == Vehicles.vehicle_id
-                                 ).where(Subscriptions.subscription_status == "ACTIVE")
+        db_list=Subscriptions.query.join(Vehicles,
+                                         Subscriptions.vehicle_id == Vehicles.vehicle_id
+                                         ).where(Subscriptions.subscription_status == "ACTIVE")
     )
-    return render_template("free_parking_spots_report.html",
+    return render_template(template_name_or_list="free_parking_spots_report.html",
                            free_spots_list=free_spots_list
                            )
