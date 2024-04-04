@@ -188,8 +188,8 @@ def format_time(time):
 
 
 def compose_dt(date: str, time: str, dt_format: str):
-    date = manual_str_char_swap_dt(date)
-    time = format_time(time)
+    date = manual_str_char_swap_dt(str_dt=date)
+    time = format_time(time=time)
     gather_str_dt = date + " " + time
     return convert_str_to_dt(str_dt=gather_str_dt,
                              dt_format=dt_format

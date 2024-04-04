@@ -61,7 +61,7 @@ def record_exist_msg(record: str):
     return f"The {record} already exists"
 
 
-def letters_mix_msg(obj_one: str, obj_two:str):
+def letters_mix_msg(obj_one: str, obj_two: str):
     return f"{obj_one} and {obj_two} are different alphabet. Use only latin or cyrillic {obj_one}"
 
 
