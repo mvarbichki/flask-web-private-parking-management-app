@@ -17,10 +17,6 @@ from parking.messages import successful_record_msg, failed_record_msg, no_change
 from flask_login import login_user, login_required, logout_user
 
 
-# TODO
-# create log to write errs
-
-
 @app.route("/login", methods=["GET", "POST"])
 def login():
     form = LoginForm()
@@ -184,9 +180,10 @@ def subscription_yes_but_action():
               category="success"
               )
     except Exception as err:
-        # TODO write in log file errs
-        print(err)
+        # rollback all attempted changes
         db.session.rollback()
+        # if there is an error writes it in the error.log file
+        app.logger.error("%s", err)
         flash(message=failed_record_msg,
               category="danger"
               )
@@ -219,7 +216,6 @@ def select_subscription_edit():
                         Subscriptions.subscription_status == "ACTIVE").all()
 
     form = SelectEditForm()
-
     if form.validate_on_submit():
         # gets desired sub info from select_subscription_edit.html as a single str
         subscription_information = request.form.get("selectSubsEdit")
@@ -347,9 +343,8 @@ def cancel_edit_yes_but_action():
               category="success"
               )
     except Exception as err:
-        print(err)
-        # TODO write in log file errs
         db.session.rollback()
+        app.logger.error("%s", err)
         flash(message=failed_record_msg,
               category="danger"
               )
@@ -530,9 +525,8 @@ def edit_sub_yes_but_action():
               category="success"
               )
     except Exception as err:
-        # TODO write in log file errs
         db.session.rollback()
-        print(err)
+        app.logger.error("%s", err)
         flash(message=failed_update_record_msg,
               category="danger"
               )
@@ -662,9 +656,8 @@ def cancel_exp_yes_but_action():
               category="success"
               )
     except Exception as err:
-        print(err)
-        # TODO write in log file errs
         db.session.rollback()
+        app.logger.error("%s", err)
         flash(message=failed_record_msg,
               category="danger"
               )
@@ -769,7 +762,6 @@ def renew_yes_but_action():
         if no_overdue:
             pass
         else:
-            # TODO test if enter correct format after decimal
             subscription_to_update.overdue_fee = float(session.get("overdue_fee"))
         subscription_to_update.subscription_status = "RENEWED"
         # adds the renewed subscription as new db record
@@ -779,9 +771,8 @@ def renew_yes_but_action():
               category="success"
               )
     except Exception as err:
-        print(err)
-        # TODO write in log file errs
         db.session.rollback()
+        app.logger.error("%s", err)
         flash(message=failed_record_msg,
               category="danger"
               )
@@ -858,8 +849,8 @@ def add_customer_yes_but_action():
               )
         return redirect(location=url_for("vehicles_page"))
     except Exception as err:
-        # TODO write in log file errs
         db.session.rollback()
+        app.logger.error("%s", err)
         flash(message=failed_record_msg,
               category="danger"
               )
@@ -1030,8 +1021,8 @@ def edit_customer_yes_but_action():
               category="success"
               )
     except Exception as err:
-        # TODO write in log file errs
         db.session.rollback()
+        app.logger.error("%s", err)
         flash(message=failed_update_record_msg,
               category="danger"
               )
@@ -1096,8 +1087,8 @@ def customer_yes_but_del_action():
               category="success"
               )
     except Exception as err:
-        # TODO write err in log
         db.session.rollback()
+        app.logger.error("%s", err)
         flash(message=failed_del_record_msg,
               category="danger"
               )
@@ -1192,8 +1183,8 @@ def add_vehicle_yes_but_action():
               )
         return redirect(location=url_for("subscriptions_page"))
     except Exception as err:
-        # TODO write in log file errs
         db.session.rollback()
+        app.logger.error("%s", err)
         flash(message=failed_record_msg,
               category="danger"
               )
@@ -1385,8 +1376,8 @@ def edit_vehicle_yes_but_action():
               category="success"
               )
     except Exception as err:
-        # TODO write in log file errs
         db.session.rollback()
+        app.logger.error("%s", err)
         flash(message=failed_update_record_msg,
               category="danger"
               )
@@ -1452,8 +1443,8 @@ def vehicle_yes_but_del_action():
               category="success"
               )
     except Exception as err:
-        # TODO write err in log
         db.session.rollback()
+        app.logger.error("%s", err)
         flash(message=failed_del_record_msg,
               category="danger"
               )
