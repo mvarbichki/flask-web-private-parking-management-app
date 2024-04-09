@@ -1,4 +1,4 @@
-PRIVATE PARKING WEB APPLICATION
+WEB APPLICATION FOR PRIVATE PARKING MANAGEMENT
 
 
 My first Flask project so there is room for future improvements.
