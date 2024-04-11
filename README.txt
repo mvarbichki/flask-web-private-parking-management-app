@@ -4,7 +4,7 @@ My first Flask project so there is room for future improvements.
 
 FEATURES
 This is a web application for managing paid parking areas.
-The idea of the project is for local PostgreSQL database usage because at this point a loader is skipped in case of time-demanding tasks.
+The idea of the project is for local PostgreSQL database usage because at this point a loader is skipped in case of time-demanding tasks (ex. cloud databases).
 The app takes care of:
 1. Customers:
 - Registration
